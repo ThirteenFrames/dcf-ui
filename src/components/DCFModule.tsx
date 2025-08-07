@@ -93,7 +93,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
-              <Info className="h-3 w-3 text-text-secondary" />
+              <Info className="text-text-secondary" size={14} strokeWidth={1.5} />
             </TooltipTrigger>
             <TooltipContent>
               <p className="text-xs">{tooltip}</p>
@@ -119,7 +119,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
   );
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 bg-bg-space min-h-screen">
+    <div className="w-full max-w-7xl mx-auto p-6 bg-bg-space min-h-screen animate-fade-in">
       <style>{`
         .dcf-module {
           --bg-space: 201 52% 10%;
@@ -162,7 +162,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
 
       <div className="space-y-8">
         {/* Assumptions Card */}
-        <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle">
+         <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle animate-fade-in">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-text-primary">Assumptions</h2>
             <Button 
@@ -221,21 +221,23 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
         </div>
 
         {/* Output Card */}
-        <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle">
+        <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle animate-fade-in">
           <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-xl font-semibold text-text-primary">Intrinsic Value / Share</h2>
-              {valuationStatus && (
-                <span className={`px-3 py-1 rounded-full text-xs font-medium border ${valuationStatus.color}`}>
-                  {valuationStatus.label}
-                </span>
-              )}
-            </div>
-            <div className="text-4xl font-bold text-accent-green mb-4">
-              ${animatedValue.toFixed(2)}
+            <div className="rounded-2xl bg-accent-blue/12 border border-accent-blue/30 p-6 animate-fade-in">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-sm font-medium uppercase tracking-wide text-text-secondary">Intrinsic Value / Share</h2>
+                {valuationStatus && (
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium border ${valuationStatus.color}`}>
+                    {valuationStatus.label}
+                  </span>
+                )}
+              </div>
+              <div className="text-5xl md:text-6xl font-bold text-text-primary leading-tight">
+                ${animatedValue.toFixed(2)}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mt-4">
               <div>
                 <div className="text-text-secondary">Enterprise Value</div>
                 <div className="text-text-primary font-semibold">
@@ -258,10 +260,10 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
           </div>
 
           <Tabs defaultValue="dcf" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-bg-space">
-              <TabsTrigger value="dcf" className="text-text-secondary data-[state=active]:text-text-primary">DCF</TabsTrigger>
-              <TabsTrigger value="sensitivity" className="text-text-secondary data-[state=active]:text-text-primary">Sensitivity</TabsTrigger>
-              <TabsTrigger value="notes" className="text-text-secondary data-[state=active]:text-text-primary">Notes</TabsTrigger>
+            <TabsList className="w-full rounded-full p-1 border border-border-subtle bg-bg-space">
+              <TabsTrigger value="dcf" className="rounded-full text-text-secondary data-[state=active]:text-text-primary data-[state=active]:bg-bg-elevate px-4 py-2">DCF</TabsTrigger>
+              <TabsTrigger value="sensitivity" className="rounded-full text-text-secondary data-[state=active]:text-text-primary data-[state=active]:bg-bg-elevate px-4 py-2">Sensitivity</TabsTrigger>
+              <TabsTrigger value="notes" className="rounded-full text-text-secondary data-[state=active]:text-text-primary data-[state=active]:bg-bg-elevate px-4 py-2">Notes</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dcf" className="mt-4">
@@ -279,7 +281,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
                         color: 'hsl(var(--text-primary))'
                       }}
                     />
-                    <Bar dataKey="fcf" fill="hsl(var(--accent-green))" />
+                    <Bar dataKey="fcf" fill="hsl(var(--accent-green))" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
