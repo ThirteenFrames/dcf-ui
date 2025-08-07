@@ -9,7 +9,8 @@ import { Label } from './ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
-const DCFModule: React.FC<DCFModuleProps> = ({ ticker = 'SAMPLE', onValueChange }) => {
+const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE', onValueChange }) => {
+  const [ticker, setTicker] = useState(initialTicker);
   const [inputs, setInputs] = useState<DCFInputs>(sampleInputs);
   const [results, setResults] = useState<DCFResults>(calculateDCF(sampleInputs));
   const [animatedValue, setAnimatedValue] = useState(0);
@@ -146,9 +147,17 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker = 'SAMPLE', onValueChange 
         <h1 className="text-3xl font-bold text-text-primary mb-2">
           DCF Valuation Module
         </h1>
-        <p className="text-text-secondary">
-          Company: <span className="text-accent-green font-semibold">{ticker}</span>
-        </p>
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <Label htmlFor="ticker" className="text-text-secondary">Ticker:</Label>
+          <Input
+            id="ticker"
+            type="text"
+            value={ticker}
+            onChange={(e) => setTicker(e.target.value.toUpperCase())}
+            className="w-32 bg-bg-elevate border-border-subtle text-accent-green font-semibold text-center"
+            placeholder="AAPL"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
