@@ -160,7 +160,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="space-y-8">
         {/* Assumptions Card */}
         <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle">
           <div className="flex items-center justify-between mb-6">
@@ -174,7 +174,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             <InputField
               label="Revenue CAGR"
               field="revenueCagr"
