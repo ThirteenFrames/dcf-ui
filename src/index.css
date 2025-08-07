@@ -8,51 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* DCF Module Design System */
+    --bg-space: 201 52% 10%;
+    --bg-elevate: 210 23% 16%;
+    --border-subtle: 210 20% 21%;
+    --text-primary: 217 27% 92%;
+    --text-secondary: 218 11% 65%;
+    --accent-green: 145 63% 42%;
+    --accent-red: 4 86% 67%;
+    
+    /* Existing system colors */
+    --background: hsl(var(--bg-space));
+    --foreground: hsl(var(--text-primary));
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: hsl(var(--bg-elevate));
+    --card-foreground: hsl(var(--text-primary));
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: hsl(var(--bg-elevate));
+    --popover-foreground: hsl(var(--text-primary));
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: hsl(var(--accent-green));
+    --primary-foreground: hsl(var(--bg-space));
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: hsl(var(--bg-elevate));
+    --secondary-foreground: hsl(var(--text-primary));
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: hsl(var(--border-subtle));
+    --muted-foreground: hsl(var(--text-secondary));
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: hsl(var(--accent-green));
+    --accent-foreground: hsl(var(--bg-space));
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: hsl(var(--accent-red));
+    --destructive-foreground: hsl(var(--text-primary));
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: hsl(var(--border-subtle));
+    --input: hsl(var(--bg-elevate));
+    --ring: hsl(var(--accent-green));
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: hsl(var(--bg-elevate));
+    --sidebar-foreground: hsl(var(--text-primary));
+    --sidebar-primary: hsl(var(--accent-green));
+    --sidebar-primary-foreground: hsl(var(--bg-space));
+    --sidebar-accent: hsl(var(--border-subtle));
+    --sidebar-accent-foreground: hsl(var(--text-primary));
+    --sidebar-border: hsl(var(--border-subtle));
+    --sidebar-ring: hsl(var(--accent-green));
   }
 
   .dark {
