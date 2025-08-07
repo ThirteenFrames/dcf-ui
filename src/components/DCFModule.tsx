@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Info } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DCFInputs, DCFResults, DCFModuleProps } from '../types/dcf';
@@ -7,20 +7,25 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE', onValueChange }) => {
   const [ticker, setTicker] = useState(initialTicker);
   const [inputs, setInputs] = useState<DCFInputs>(sampleInputs);
   const [results, setResults] = useState<DCFResults>(calculateDCF(sampleInputs));
   const [animatedValue, setAnimatedValue] = useState(0);
+  const rafIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const newResults = calculateDCF(inputs);
     setResults(newResults);
     onValueChange?.(newResults.intrinsicValue);
 
-    // Animate the intrinsic value
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+
     const start = animatedValue;
     const end = newResults.intrinsicValue;
     const duration = 1000;
@@ -31,15 +36,22 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
       const progress = Math.min(elapsed / duration, 1);
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
       const current = start + (end - start) * easeOutQuart;
-      
       setAnimatedValue(current);
-      
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        rafIdRef.current = requestAnimationFrame(animate);
+      } else {
+        rafIdRef.current = null;
       }
     };
-    
-    requestAnimationFrame(animate);
+
+    rafIdRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
   }, [inputs, onValueChange]);
 
   const handleInputChange = (field: keyof DCFInputs, value: number) => {
@@ -90,16 +102,14 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
         <Label htmlFor={field} className="text-sm font-medium text-text-primary">
           {label}
         </Label>
-        <TooltipProvider>
-          <UITooltip>
-            <TooltipTrigger>
-              <Info className="text-text-secondary" size={14} strokeWidth={1.5} />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">{tooltip}</p>
-            </TooltipContent>
-          </UITooltip>
-        </TooltipProvider>
+        <UITooltip>
+          <TooltipTrigger>
+            <Info className="text-text-secondary" size={14} strokeWidth={1.5} />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">{tooltip}</p>
+          </TooltipContent>
+        </UITooltip>
       </div>
       <div className="relative">
         <Input
@@ -223,7 +233,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
         {/* Output Card */}
         <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle animate-fade-in">
           <div className="mb-6">
-            <div className="rounded-2xl bg-accent-blue/12 border border-accent-blue/30 p-6 animate-fade-in">
+            <div className="rounded-2xl bg-bg-space border border-border-subtle p-6 animate-fade-in">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm font-medium uppercase tracking-wide text-text-secondary">Intrinsic Value / Share</h2>
                 {valuationStatus && (

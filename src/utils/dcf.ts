@@ -34,7 +34,9 @@ export function calculateDCF(inputs: DCFInputs): DCFResults {
 
   // Calculate terminal value
   const terminalFCF = projectedFCFs[years - 1] * (1 + inputs.terminalGrowth / 100);
-  const terminalValue = terminalFCF / (inputs.discountRate / 100 - inputs.terminalGrowth / 100);
+  const discountMinusGrowth = (inputs.discountRate - inputs.terminalGrowth) / 100;
+  const safeDenominator = Math.max(discountMinusGrowth, 0.001); // avoid div-by-zero or negative
+  const terminalValue = terminalFCF / safeDenominator;
 
   // Discount to present value
   let pv = 0;

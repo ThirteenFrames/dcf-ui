@@ -18,33 +18,33 @@ All colors MUST be HSL.
     --accent-red: 4 86% 67%;
     
     /* Existing system colors */
-    --background: hsl(var(--bg-space));
-    --foreground: hsl(var(--text-primary));
+    --background: var(--bg-space);
+    --foreground: var(--text-primary);
 
-    --card: hsl(var(--bg-elevate));
-    --card-foreground: hsl(var(--text-primary));
+    --card: var(--bg-elevate);
+    --card-foreground: var(--text-primary);
 
-    --popover: hsl(var(--bg-elevate));
-    --popover-foreground: hsl(var(--text-primary));
+    --popover: var(--bg-elevate);
+    --popover-foreground: var(--text-primary);
 
-    --primary: hsl(var(--accent-green));
-    --primary-foreground: hsl(var(--bg-space));
+    --primary: var(--accent-green);
+    --primary-foreground: var(--bg-space);
 
-    --secondary: hsl(var(--bg-elevate));
-    --secondary-foreground: hsl(var(--text-primary));
+    --secondary: var(--bg-elevate);
+    --secondary-foreground: var(--text-primary);
 
-    --muted: hsl(var(--border-subtle));
-    --muted-foreground: hsl(var(--text-secondary));
+    --muted: var(--border-subtle);
+    --muted-foreground: var(--text-secondary);
 
-    --accent: hsl(var(--accent-green));
-    --accent-foreground: hsl(var(--bg-space));
+    --accent: var(--accent-green);
+    --accent-foreground: var(--bg-space);
 
-    --destructive: hsl(var(--accent-red));
-    --destructive-foreground: hsl(var(--text-primary));
+    --destructive: var(--accent-red);
+    --destructive-foreground: var(--text-primary);
 
-    --border: hsl(var(--border-subtle));
-    --input: hsl(var(--bg-elevate));
-    --ring: hsl(var(--accent-green));
+    --border: var(--border-subtle);
+    --input: var(--bg-elevate);
+    --ring: var(--accent-green);
 
     --radius: 1rem;
 
@@ -99,7 +99,7 @@ All colors MUST be HSL.
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border motion-reduce:transition-none motion-reduce:animate-none;
   }
 
   body {
