@@ -26,3 +26,33 @@ export interface SensitivityData {
   terminalGrowthRates: number[];
   values: number[][];
 }
+
+export interface CompanyMeta {
+  price: number;
+  sharesOutstanding: number;
+  currency: string;
+  revenueLatest?: number;
+  fcfLatest?: number;
+  growthEstimate5Y?: number; // % YoY next 5 years
+  eps?: number;
+  periodYears?: number;
+  terminalRate?: number; // %
+  // Valuation plumbing
+  marketCap?: number;
+  totalDebt?: number;
+  cash?: number;
+  netDebt?: number;
+  beta?: number;
+  riskFreeRate?: number;
+  marketRiskPremium?: number;
+  costOfEquity?: number;
+  costOfDebt?: number;
+  wacc?: number;
+  daPercent?: number; // % of revenue
+}
+
+export interface DCFAPIResponse {
+  ticker: string;
+  inputs: DCFInputs;
+  meta: CompanyMeta;
+}
