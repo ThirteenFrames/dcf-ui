@@ -7,10 +7,7 @@ const Index = () => {
   };
 
   return (
-    <DCFModule 
-      ticker="SAMPLE" 
-      onValueChange={handleValueChange}
-    />
+    <DCFModule onValueChange={handleValueChange} />
   );
 };
 

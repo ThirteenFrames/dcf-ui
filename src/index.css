@@ -105,6 +105,8 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background-image: radial-gradient(hsl(var(--border-subtle) / 0.5) 1px, transparent 1px);
+    background-size: 16px 16px;
   }
 }
 
@@ -179,3 +181,5 @@ All colors MUST be HSL.
 .recharts-rectangle { transition: filter 200ms ease, opacity 200ms ease; }
 /* Only the active bar (hovered) should glow */
 .dcf-bar-active { filter: drop-shadow(0 0 8px hsl(var(--accent-green) / 0.8)); }
+/* Active dot glow for line charts */
+.dcf-dot-active { filter: drop-shadow(0 0 8px hsl(var(--accent-green) / 0.8)); }
