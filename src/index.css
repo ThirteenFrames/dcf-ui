@@ -16,6 +16,7 @@ All colors MUST be HSL.
     --text-secondary: 218 11% 65%;
     --accent-green: 145 63% 42%;
     --accent-red: 4 86% 67%;
+    --tab-active: 215 18% 30%;
     
     /* Existing system colors */
     --background: var(--bg-space);
@@ -106,3 +107,75 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Soft grid dots for charts/backgrounds */
+  .bg-grid-dots {
+    background-image: radial-gradient(hsl(var(--border-subtle) / 0.5) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  /* Subtle radial color wash */
+  .bg-radial-fade {
+    background: radial-gradient(1000px circle at 15% -10%, hsl(var(--accent-green) / 0.12), transparent 40%),
+      radial-gradient(800px circle at 110% 0%, hsl(var(--accent-green) / 0.08), transparent 40%);
+  }
+
+  /* Inset shadow for elevated cards */
+  .shadow-inset-card {
+    box-shadow:
+      inset 0 1px 0 hsl(var(--border-subtle) / 0.6),
+      inset 0 0 40px hsl(var(--bg-space) / 0.6);
+  }
+
+  /* Stronger depth using an overlay pseudo-element */
+  .card-inset { position: relative; z-index: 0; }
+  .card-inset > * { position: relative; z-index: 1; }
+  .card-inset::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+      inset 0 1px 0 hsl(var(--foreground) / 0.08),
+      inset 0 0 0 1px hsl(var(--border-subtle) / 0.6),
+      inset 0 -60px 80px hsl(var(--bg-space) / 0.8);
+    z-index: 0;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in { animation: fade-in 300ms ease-out both; }
+
+  /* Pill highlight covering one third of the TabsList under the active trigger */
+  .tab-pill-container { position: relative; }
+  .tab-pill { position: relative; overflow: visible; z-index: 0; }
+  .tab-pill > * { position: relative; z-index: 1; }
+  .tab-pill-container .tab-pill::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100% / 3);
+    height: 100%;
+    border-radius: 9999px;
+    background: hsl(var(--tab-active));
+    /* Subtle uniform glow around the pill (behind, not just underneath) */
+    filter: drop-shadow(0 0 10px hsl(0 0% 100% / 0.12)) drop-shadow(0 0 20px hsl(0 0% 100% / 0.04));
+    z-index: 0;
+    transform: translateX(0%);
+    transition: transform 250ms ease;
+    pointer-events: none;
+  }
+  .tab-pill-container[data-value="sensitivity"] .tab-pill::before { transform: translateX(100%); }
+  .tab-pill-container[data-value="notes"] .tab-pill::before { transform: translateX(200%); }
+}
+
+/* Recharts bar hover glow */
+/* Smooth transition for bars */
+.recharts-rectangle { transition: filter 200ms ease, opacity 200ms ease; }
+/* Only the active bar (hovered) should glow */
+.dcf-bar-active { filter: drop-shadow(0 0 8px hsl(var(--accent-green) / 0.8)); }

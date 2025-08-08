@@ -34,3 +34,4 @@ Performance Optimization
 Other Rules
 - Don’t be lazy: implement the full feature end-to-end (UI, types, utils, docs/tests as relevant).
 - Keep lint clean and builds green before merging.
+- Do not run `pnpm build` unless explicitly requested by the user.

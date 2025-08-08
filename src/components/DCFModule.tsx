@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Info } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { DCFInputs, DCFResults, DCFModuleProps } from '../types/dcf';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Rectangle } from 'recharts';
+import { DCFModuleProps } from '../types/dcf';
 import { calculateDCF, sampleInputs, generateSensitivityData } from '../utils/dcf';
-import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -11,23 +9,21 @@ import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from './ui/toolt
 
 const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE', onValueChange }) => {
   const [ticker, setTicker] = useState(initialTicker);
-  const [inputs, setInputs] = useState<DCFInputs>(sampleInputs);
-  const [results, setResults] = useState<DCFResults>(calculateDCF(sampleInputs));
+  const inputs = sampleInputs; // static inputs (read-only)
+  const results = useMemo(() => calculateDCF(inputs), [inputs]);
   const [animatedValue, setAnimatedValue] = useState(0);
   const rafIdRef = useRef<number | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('dcf');
 
   useEffect(() => {
-    const newResults = calculateDCF(inputs);
-    setResults(newResults);
-    onValueChange?.(newResults.intrinsicValue);
-
+    onValueChange?.(results.intrinsicValue);
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
     }
 
     const start = animatedValue;
-    const end = newResults.intrinsicValue;
+    const end = results.intrinsicValue;
     const duration = 1000;
     const startTime = Date.now();
 
@@ -52,17 +48,9 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
         rafIdRef.current = null;
       }
     };
-  }, [inputs, onValueChange]);
+  }, [results.intrinsicValue, onValueChange]);
 
-  const handleInputChange = (field: keyof DCFInputs, value: number) => {
-    setInputs(prev => ({ ...prev, [field]: value }));
-  };
-
-  const resetToSample = () => {
-    setInputs(sampleInputs);
-  };
-
-  const sensitivityData = generateSensitivityData(inputs);
+  const sensitivityData = useMemo(() => generateSensitivityData(inputs), [inputs]);
   
   const chartData = results.projectedFCFs.map((fcf, index) => ({
     year: `Y${index + 1}`,
@@ -84,52 +72,10 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
 
   const valuationStatus = getValuationStatus();
 
-  const InputField = ({ 
-    label, 
-    field, 
-    value, 
-    suffix = '%',
-    tooltip 
-  }: {
-    label: string;
-    field: keyof DCFInputs;
-    value: number;
-    suffix?: string;
-    tooltip: string;
-  }) => (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Label htmlFor={field} className="text-sm font-medium text-text-primary">
-          {label}
-        </Label>
-        <UITooltip>
-          <TooltipTrigger>
-            <Info className="text-text-secondary" size={14} strokeWidth={1.5} />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-xs">{tooltip}</p>
-          </TooltipContent>
-        </UITooltip>
-      </div>
-      <div className="relative">
-        <Input
-          id={field}
-          type="number"
-          step="0.1"
-          value={value}
-          onChange={(e) => handleInputChange(field, parseFloat(e.target.value) || 0)}
-          className="pr-8 bg-bg-elevate border-border-subtle text-text-primary"
-          aria-valuenow={value}
-        />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-secondary">
-          {suffix}
-        </span>
-      </div>
-    </div>
-  );
+  // No input fields — assumptions are static
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 bg-bg-space min-h-screen animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto p-6 bg-bg-space bg-grid-dots min-h-screen animate-fade-in">
       <style>{`
         .dcf-module {
           --bg-space: 201 52% 10%;
@@ -153,85 +99,43 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
         .border-accent-red\\/30 { border-color: hsl(var(--accent-red) / 0.3); }
       `}</style>
 
-      <div className="dcf-module mb-8 text-center">
-        <h1 className="text-3xl font-bold text-text-primary mb-2">
-          DCF Valuation Module
-        </h1>
-        <div className="flex items-center justify-center gap-3 mt-4">
-          <Label htmlFor="ticker" className="text-text-secondary">Ticker:</Label>
-          <Input
-            id="ticker"
-            type="text"
-            value={ticker}
-            onChange={(e) => setTicker(e.target.value.toUpperCase())}
-            className="w-32 bg-bg-elevate border-border-subtle text-accent-green font-semibold text-center"
-            placeholder="AAPL"
-          />
+      <div className="dcf-module mb-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-text-primary mt-4">DCF Valuation Module</h1>
+          <div className="flex items-center gap-3">
+            <Label htmlFor="ticker" className="text-text-secondary">Ticker</Label>
+            <Input
+              id="ticker"
+              type="text"
+              value={ticker}
+              onChange={(e) => setTicker(e.target.value.toUpperCase())}
+              className="w-32 bg-bg-elevate border-border-subtle text-accent-green font-semibold text-center"
+              placeholder="AAPL"
+            />
+          </div>
         </div>
       </div>
 
       <div className="space-y-8">
-        {/* Assumptions Card */}
-         <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle animate-fade-in">
+        {/* Assumptions Summary (static) */}
+        <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] shadow-inset-card card-inset border border-border-subtle animate-fade-in">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-text-primary">Assumptions</h2>
-            <Button 
-              onClick={resetToSample}
-              className="bg-accent-green hover:bg-accent-green/80 text-bg-space"
-              size="sm"
-            >
-              Reset to Sample Data
-            </Button>
+            <div className="text-xs text-text-secondary">Read-only</div>
           </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-            <InputField
-              label="Revenue CAGR"
-              field="revenueCagr"
-              value={inputs.revenueCagr}
-              tooltip="Annual revenue growth rate"
-            />
-            <InputField
-              label="EBIT Margin"
-              field="ebitMargin"
-              value={inputs.ebitMargin}
-              tooltip="Earnings before interest and tax as % of revenue"
-            />
-            <InputField
-              label="Tax Rate"
-              field="taxRate"
-              value={inputs.taxRate}
-              tooltip="Corporate tax rate"
-            />
-            <InputField
-              label="CapEx %"
-              field="capexPercent"
-              value={inputs.capexPercent}
-              tooltip="Capital expenditure as % of revenue"
-            />
-            <InputField
-              label="NWC %"
-              field="nwcPercent"
-              value={inputs.nwcPercent}
-              tooltip="Net working capital as % of revenue"
-            />
-            <InputField
-              label="Terminal Growth"
-              field="terminalGrowth"
-              value={inputs.terminalGrowth}
-              tooltip="Long-term growth rate beyond forecast period"
-            />
-            <InputField
-              label="Discount Rate"
-              field="discountRate"
-              value={inputs.discountRate}
-              tooltip="Required rate of return (WACC)"
-            />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 text-sm">
+            <div><div className="text-text-secondary">Revenue CAGR</div><div className="text-text-primary font-medium">{inputs.revenueCagr}%</div></div>
+            <div><div className="text-text-secondary">EBIT Margin</div><div className="text-text-primary font-medium">{inputs.ebitMargin}%</div></div>
+            <div><div className="text-text-secondary">Tax Rate</div><div className="text-text-primary font-medium">{inputs.taxRate}%</div></div>
+            <div><div className="text-text-secondary">CapEx %</div><div className="text-text-primary font-medium">{inputs.capexPercent}%</div></div>
+            <div><div className="text-text-secondary">NWC %</div><div className="text-text-primary font-medium">{inputs.nwcPercent}%</div></div>
+            <div><div className="text-text-secondary">Terminal Growth</div><div className="text-text-primary font-medium">{inputs.terminalGrowth}%</div></div>
+            <div><div className="text-text-secondary">Discount Rate</div><div className="text-text-primary font-medium">{inputs.discountRate}%</div></div>
           </div>
         </div>
 
         {/* Output Card */}
-        <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] border border-border-subtle animate-fade-in">
+        <div className="bg-bg-elevate rounded-2xl p-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] shadow-inset-card card-inset border border-border-subtle animate-fade-in">
           <div className="mb-6">
             <div className="rounded-2xl bg-bg-space border border-border-subtle p-6 animate-fade-in">
               <div className="flex items-center justify-between mb-2">
@@ -269,29 +173,44 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'SAMPLE',
             </div>
           </div>
 
-          <Tabs defaultValue="dcf" className="w-full">
-            <TabsList className="w-full rounded-full p-1 border border-border-subtle bg-bg-space">
-              <TabsTrigger value="dcf" className="rounded-full text-text-secondary data-[state=active]:text-text-primary data-[state=active]:bg-bg-elevate px-4 py-2">DCF</TabsTrigger>
-              <TabsTrigger value="sensitivity" className="rounded-full text-text-secondary data-[state=active]:text-text-primary data-[state=active]:bg-bg-elevate px-4 py-2">Sensitivity</TabsTrigger>
-              <TabsTrigger value="notes" className="rounded-full text-text-secondary data-[state=active]:text-text-primary data-[state=active]:bg-bg-elevate px-4 py-2">Notes</TabsTrigger>
-            </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="tab-pill-container w-full" data-value={activeTab}>
+              <TabsList className="tab-pill w-full !grid grid-cols-3 place-items-center rounded-full p-0.5 border border-border-subtle bg-bg-space relative">
+                <TabsTrigger value="dcf" className="w-full h-9 justify-center text-center rounded-full text-text-secondary data-[state=active]:!text-white data-[state=active]:!bg-transparent data-[state=active]:!shadow-none px-0">DCF</TabsTrigger>
+                <TabsTrigger value="sensitivity" className="w-full h-9 justify-center text-center rounded-full text-text-secondary data-[state=active]:!text-white data-[state=active]:!bg-transparent data-[state=active]:!shadow-none px-0">Sensitivity</TabsTrigger>
+                <TabsTrigger value="notes" className="w-full h-9 justify-center text-center rounded-full text-text-secondary data-[state=active]:!text-white data-[state=active]:!bg-transparent data-[state=active]:!shadow-none px-0">Notes</TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="dcf" className="mt-4">
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border-subtle))" />
-                    <XAxis dataKey="year" stroke="hsl(var(--text-secondary))" />
+                    <XAxis
+                      dataKey="year"
+                      stroke="hsl(var(--text-secondary))"
+                      tickMargin={14}
+                    />
                     <YAxis stroke="hsl(var(--text-secondary))" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--bg-space))', 
+                    <Tooltip
+                      cursor={false}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--bg-space))',
                         border: '1px solid hsl(var(--border-subtle))',
                         borderRadius: '8px',
                         color: 'hsl(var(--text-primary))'
                       }}
+                      wrapperStyle={{ outline: 'none' }}
+                      itemStyle={{ color: 'hsl(var(--text-primary))' }}
+                      labelStyle={{ color: 'hsl(var(--text-secondary))' }}
                     />
-                    <Bar dataKey="fcf" fill="hsl(var(--accent-green))" radius={[8, 8, 0, 0]} />
+                    <Bar
+                      dataKey="fcf"
+                      fill="hsl(var(--accent-green))"
+                      radius={[8, 8, 0, 0]}
+                      activeBar={<Rectangle radius={[8, 8, 0, 0]} className="dcf-bar-active" />}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
