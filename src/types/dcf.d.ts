@@ -28,12 +28,12 @@ export interface SensitivityData {
 }
 
 export interface CompanyMeta {
-  price: number;
+  price: number; // price of stock
   sharesOutstanding: number;
   currency: string;
   revenueLatest?: number;
   fcfLatest?: number;
-  growthEstimate5Y?: number; // % YoY next 5 years
+  growthPercentEstimate5Y?: number; // % YoY next 5 years
   eps?: number;
   periodYears?: number;
   terminalRate?: number; // %
@@ -48,7 +48,7 @@ export interface CompanyMeta {
   costOfEquity?: number;
   costOfDebt?: number;
   wacc?: number;
-  daPercent?: number; // % of revenue
+  daPercent?: number; // D&A, % of revenue
 }
 
 export interface DCFAPIResponse {

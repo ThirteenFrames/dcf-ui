@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Rectangle, LineChart, Line } from 'recharts';
 import { DCFModuleProps, DCFInputs, CompanyMeta } from '../types/dcf';
-import { calculateDCF, sampleInputs, generateSensitivityData, fetchDCFInputs } from '../utils/dcf';
+import { calculateDCF, sampleInputs, generateSensitivityData } from '../utils/dcf';
 import { Input } from './ui/input';
 // Tabs removed for dashboard-style layout
 import { Separator } from './ui/separator';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from './ui/chart';
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
+
+import { DCFCalculator } from '@/utils/fmpAPI';
 
 const formatAxisNumber = (value: number): string => {
   const sign = value < 0 ? '-' : '';
@@ -37,7 +39,8 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'AAPL', o
     setError(null);
     const handle = setTimeout(async () => {
       try {
-        const data = await fetchDCFInputs(ticker.trim());
+        const calculator = new DCFCalculator(import.meta.env.VITE_FMP_API_KEY);
+        const data = await calculator.getDCFValuation(ticker.trim());
         setFetchedInputs(data.inputs);
         // Pass through enriched meta directly
         setCompanyMeta(data.meta as CompanyMeta);
@@ -63,13 +66,13 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'AAPL', o
           : undefined),
     marketCap: companyMeta?.marketCap ?? undefined,
     fcfLatest: companyMeta?.fcfLatest ?? undefined,
-    growthEstimate5Y: companyMeta?.growthEstimate5Y,
+    growthPercentEstimate5Y: companyMeta?.growthPercentEstimate5Y,
     periodYears: companyMeta?.periodYears,
     terminalRate: companyMeta?.terminalRate,
     netDebt: companyMeta?.netDebt ?? undefined,
     daPercent: companyMeta?.daPercent,
     useMidYear: true,
-    wacc: companyMeta?.wacc ? companyMeta.wacc * 100 : undefined,
+    wacc: companyMeta?.wacc ?? undefined, // default rate of 8
   }), [companyMeta]);
 
   const results = useMemo(() => calculateDCF(inputs, calcOptions), [inputs, calcOptions]);
@@ -192,7 +195,7 @@ const DCFModule: React.FC<DCFModuleProps> = ({ ticker: initialTicker = 'AAPL', o
                             : 0)
                     ).toFixed(2)} {companyMeta.currency}</span></span>
                     {typeof companyMeta.wacc === 'number' && (
-                      <span className="mr-3">WACC: <span className="text-text-primary font-semibold">{(companyMeta.wacc * 100).toFixed(2)}%</span></span>
+                      <span className="mr-3">WACC: <span className="text-text-primary font-semibold">{(companyMeta.wacc).toFixed(2)}%</span></span>
                     )}
                     {typeof companyMeta.sharesOutstanding === 'number' && companyMeta.sharesOutstanding > 0 && (
                       <span className="mr-3">Shares: <span className="text-text-primary font-semibold">{(companyMeta.sharesOutstanding / 1_000_000_000).toFixed(2)}B</span></span>

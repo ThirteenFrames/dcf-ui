@@ -154,41 +154,6 @@ export function generateSensitivityData(baseInputs: DCFInputs, options: DCFCalcO
 export async function fetchDCFInputs(ticker: string): Promise<DCFAPIResponse> {
   const t = ticker.trim().toUpperCase();
 
-  if (t === 'AAPL') {
-    const response: DCFAPIResponse = {
-      ticker: t,
-      inputs: {
-        revenueCagr: 7,
-        ebitMargin: 30,
-        taxRate: 18,
-        capexPercent: 3,
-        nwcPercent: 1.5,
-        terminalGrowth: 3.0,
-        discountRate: 9, // used when WACC not provided
-      },
-      meta: {
-        price: 220.03,
-        sharesOutstanding: 15_500_000_000,
-        currency: 'USD',
-        revenueLatest: 383_000_000_000,
-        fcfLatest: 110_000_000_000,
-        growthEstimate5Y: 6.5,
-        periodYears: 5,
-        terminalRate: 3.0,
-        marketCap: 3_410_465_000_000,
-        totalDebt: 110_000_000_000,
-        cash: 162_000_000_000,
-        netDebt: -52_000_000_000,
-        beta: 1.2,
-        riskFreeRate: 0.04,
-        marketRiskPremium: 0.055,
-        wacc: 0.065,
-        daPercent: 3,
-      },
-    };
-    return Promise.resolve(response);
-  }
-
   // Fallback mock for non-AAPL tickers
   const fallback: DCFAPIResponse = {
     ticker: t,
@@ -203,5 +168,34 @@ export async function fetchDCFInputs(ticker: string): Promise<DCFAPIResponse> {
       daPercent: 0,
     },
   };
-  return Promise.resolve(fallback);
+
+  try {
+    console.log('Request body:', JSON.stringify({ticker: t})); 
+    const response = await fetch('http://localhost:8000/fetch-dcf-info', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ticker: t }),
+    });
+
+    console.log('Response status:', response.status);
+
+    console.log('API call:', {
+      url: response.url,
+      status: response.status,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch DCF inputs');
+    }
+
+    return await Promise.resolve(response.json());
+  } catch (error) {
+    console.error('API call failed:', error);
+    // Return fallback data if API fails
+    return Promise.resolve(fallback);
+  }
 }
